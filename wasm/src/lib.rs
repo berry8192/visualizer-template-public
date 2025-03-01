@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn gen(seed: i32, problemId: String) -> String {
-    problemId
+    seed
 }
 
 #[wasm_bindgen(getter_with_clone)]
@@ -15,7 +15,7 @@ pub struct Ret {
 #[wasm_bindgen]
 pub fn vis(_input: String, _output: String, turn: usize) -> Ret {
     Ret {
-        score: 0,
+        score: turn*turn,
         err: "".to_string(),
         svg: "".to_string(),
     }
