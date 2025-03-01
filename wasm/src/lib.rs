@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 pub fn gen(seed: i32, problemId: String) -> String {
-    seed
+    seed.to_string()
 }
 
 #[wasm_bindgen(getter_with_clone)]
@@ -15,7 +15,7 @@ pub struct Ret {
 #[wasm_bindgen]
 pub fn vis(_input: String, _output: String, turn: usize) -> Ret {
     Ret {
-        score: turn*turn,
+        score: (turn as i64) / 2,
         err: "".to_string(),
         svg: "".to_string(),
     }
@@ -23,5 +23,5 @@ pub fn vis(_input: String, _output: String, turn: usize) -> Ret {
 
 #[wasm_bindgen]
 pub fn get_max_turn(_input: String, _output: String) -> usize {
-    0
+    1000
 }
