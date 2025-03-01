@@ -10,12 +10,15 @@ export default function middleware(req) {
   if (authorizationHeader) {
     const basicAuth = authorizationHeader.split(' ')[1];
     const [user, password] = atob(basicAuth).toString().split(':');
+    const isVercel = process.env.VERCEL === '1';
 
-    if (
-      user === 'process.env.BASIC_USER' &&
-      password === 'process.env.BASIC_PASS'
-    ) {
-      return next();
+    if (isVercel) {
+      if (
+        user === process.env.BASIC_USER &&
+        password === process.env.BASIC_PASS
+      ) {
+        return next();
+      }
     }
   }
 
