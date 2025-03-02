@@ -2,16 +2,17 @@
 /* eslint-disable */
 /**
 * @param {number} seed
+* @param {string} problemId
 * @returns {string}
 */
-export function gen(seed: number): string;
+export function gen(seed: number, problemId: string): string;
 /**
-* @param {string} _input
-* @param {string} _output
+* @param {string} input
+* @param {string} output
 * @param {number} turn
 * @returns {Ret}
 */
-export function vis(_input: string, _output: string, turn: number): Ret;
+export function vis(input: string, output: string, turn: number): Ret;
 /**
 * @param {string} _input
 * @param {string} _output
@@ -37,7 +38,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly gen: (a: number, b: number) => void;
+  readonly gen: (a: number, b: number, c: number, d: number) => void;
   readonly __wbg_ret_free: (a: number) => void;
   readonly __wbg_get_ret_score: (a: number) => number;
   readonly __wbg_set_ret_score: (a: number, b: number) => void;
@@ -48,9 +49,9 @@ export interface InitOutput {
   readonly vis: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly get_max_turn: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
-  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
+  readonly __wbindgen_free: (a: number, b: number, c: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;

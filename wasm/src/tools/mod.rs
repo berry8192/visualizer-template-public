@@ -1,10 +1,10 @@
-use wasm_bindgen::prelude::*;
-mod tools;
+#![allow(non_snake_case, unused_macros)]
 
 use noise::{NoiseFn, Perlin};
 use proconio::{input, marker::Chars};
 use rand::prelude::*;
 use std::ops::RangeBounds;
+pub mod score;
 
 pub trait SetMinMax {
     fn setmin(&mut self, v: Self) -> bool;
@@ -26,6 +26,14 @@ where
             true
         }
     }
+}
+
+#[macro_export]
+macro_rules! mat {
+	($($e:expr),*) => { Vec::from(vec![$($e),*]) };
+	($($e:expr,)*) => { Vec::from(vec![$($e),*]) };
+	($e:expr; $d:expr) => { Vec::from(vec![$e; $d]) };
+	($e:expr; $d:expr $(; $ds:expr)+) => { Vec::from(vec![mat![$e $(; $ds)*]; $d]) };
 }
 
 #[derive(Clone, Debug)]
@@ -108,6 +116,125 @@ pub fn parse_output(_input: &Input, f: &str) -> Result<Output, String> {
         return Err("Too many actions".to_owned());
     }
     Ok(Output { out })
+}
+
+pub fn generate(seed: u64, problem: &str) -> Input {
+    let mut rng = rand_chacha::ChaCha20Rng::seed_from_u64(seed);
+    match problem {
+        "A" => {
+            let N = 20;
+            let M = 1;
+            let mut cs = mat!['.'; N; N];
+            let mut ps = vec![];
+            for i in 0..N {
+                for j in 0..N {
+                    ps.push((i, j));
+                }
+            }
+            ps.shuffle(&mut rng);
+            let (i, j) = ps.pop().unwrap();
+            cs[i][j] = 'A';
+            for _ in 0..2 * N {
+                let (i, j) = ps.pop().unwrap();
+                cs[i][j] = 'a';
+            }
+            for _ in 0..2 * N {
+                let (i, j) = ps.pop().unwrap();
+                cs[i][j] = '@';
+            }
+            Input { N, M, cs }
+        }
+        "B" => {
+            let N = 20;
+            let M = 3;
+            loop {
+                let mut cs = mat!['.'; N; N];
+                let mut ps = vec![];
+                for i in 0..N {
+                    for j in 0..N {
+                        ps.push((i, j));
+                    }
+                }
+                ps.shuffle(&mut rng);
+                let mut ss = vec![];
+                for k in 0..3 {
+                    let (i, j) = ps.pop().unwrap();
+                    cs[i][j] = (b'A' + k as u8) as char;
+                    ss.push((i, j));
+                }
+                for k in 0..3 {
+                    for _ in 0..N {
+                        let (i, j) = ps.pop().unwrap();
+                        cs[i][j] = (b'a' + k as u8) as char;
+                    }
+                }
+                let mut ok = true;
+                for k in 0..3 {
+                    let t = (b'a' + k as u8) as char;
+                    let s = ss[k];
+                    let mut visited = mat![false; N; N];
+                    let mut stack = vec![s];
+                    visited[s.0][s.1] = true;
+                    while let Some((i, j)) = stack.pop() {
+                        for d in 0..4 {
+                            let (di, dj) = DIJ[d];
+                            let i = i + di;
+                            let j = j + dj;
+                            if i < N
+                                && j < N
+                                && !visited[i][j]
+                                && (cs[i][j] == '.' || cs[i][j] == t)
+                            {
+                                visited[i][j] = true;
+                                stack.push((i, j));
+                            }
+                        }
+                    }
+                    for i in 0..N {
+                        for j in 0..N {
+                            if cs[i][j] == t && !visited[i][j] {
+                                ok = false;
+                            }
+                        }
+                    }
+                }
+                if ok {
+                    return Input { N, M, cs };
+                }
+            }
+        }
+        "C" => {
+            let N = 20;
+            let M = 1;
+            let perlin = Perlin::new(rng.r#gen());
+            let D = 10.0;
+            let mut ps = vec![];
+            for i in 0..N {
+                for j in 0..N {
+                    let x = i as f64 / D;
+                    let y = j as f64 / D;
+                    ps.push((perlin.get([x, y]), i, j));
+                }
+            }
+            ps.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+            let mut cs = mat!['.'; N; N];
+            for _ in 0..N * N / 2 {
+                let (_, i, j) = ps.pop().unwrap();
+                cs[i][j] = '@';
+            }
+            ps.shuffle(&mut rng);
+            let (_, i, j) = ps.pop().unwrap();
+            cs[i][j] = 'A';
+            for _ in 0..2 * N {
+                let (_, i, j) = ps.pop().unwrap();
+                cs[i][j] = 'a';
+            }
+            Input { N, M, cs }
+        }
+        _ => {
+            panic!("Unknown problem: {}", problem);
+        }
+    }
 }
 
 pub fn compute_score(input: &Input, out: &Output) -> (i64, String) {
@@ -199,32 +326,4 @@ pub fn compute_score_details(input: &Input, out: &[Action]) -> (i64, String, ())
         (1e6 * A as f64 / K as f64).round() as i64
     };
     (score, String::new(), ())
-}
-
-#[wasm_bindgen]
-pub fn gen(seed: i32, problemId: String) -> String {
-    let input = tools::generate(seed as u64, &problemId);
-    input.to_string()
-}
-
-#[wasm_bindgen(getter_with_clone)]
-pub struct Ret {
-    pub score: i64,
-    pub err: String,
-    pub svg: String,
-}
-
-#[wasm_bindgen]
-pub fn vis(input: String, output: String, turn: usize) -> Ret {
-    let (score, err) = tools::score::score(input, output);
-    Ret {
-        score,
-        err,
-        svg: "".to_string(),
-    }
-}
-
-#[wasm_bindgen]
-pub fn get_max_turn(_input: String, _output: String) -> usize {
-    10000
 }
