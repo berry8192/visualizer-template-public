@@ -254,19 +254,22 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
 
             document = document.add(rect);
 
-            // 小文字 (a, b, c) の場合、中央に小さい円を描画
-            if ['a', 'b', 'c'].contains(&c) {
+            // 小文字 (a, b, c) の場合、それぞれの色の小さな丸を描画
+            if let Some(circle_color) = match c {
+                'a' | 'b' | 'c' => Some(get_circle_color(c)),
+                _ => None,
+            } {
                 let circle = Circle::new()
                     .set("cx", x_pos + cell_size / 2)
                     .set("cy", y_pos + cell_size / 2)
                     .set("r", circle_radius)
-                    .set("fill", "#000"); // 小さい丸は黒
+                    .set("fill", circle_color); // 各文字の対応する色
                 document = document.add(circle);
             }
         }
     }
 
-    // 主人公の位置にキャラを描画 (例: 赤い円)
+    // 主人公の位置にキャラを描画 (例: 黄色い円)
     let player_circle = Circle::new()
         .set("cx", x as i32 * cell_size + cell_size / 2)
         .set("cy", y as i32 * cell_size + cell_size / 2)
