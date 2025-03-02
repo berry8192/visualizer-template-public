@@ -273,7 +273,7 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
     let player_circle = Circle::new()
         .set("cx", x as i32 * cell_size + cell_size / 2)
         .set("cy", y as i32 * cell_size + cell_size / 2)
-        .set("r", 6)
+        .set("r", 4)
         .set("fill", "yellow")
         .set("stroke", "black")
         .set("stroke-width", 2);
