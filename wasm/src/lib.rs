@@ -229,13 +229,13 @@ fn get_circle_color(c: char) -> &'static str {
 
 /// 20×20 の盤面を表す SVG を生成
 fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
-    let cell_size = 20; // 各マスのサイズ
+    let cell_size = 21; // 各マスのサイズ
     let circle_radius = 8;
     let mut document = Document::new()
-        .set("viewBox", (0, 0, 400, 400))
-        .set("width", "400px")  // 最大幅
-        .set("height", "400px") // 最大高さ
-        .set("preserveAspectRatio", "xMidYMid meet"); // 縮小時に中央寄せ
+        .set("viewBox", (0, 0, 441, 441)) // 余白を考慮して少し大きく
+        .set("width", "441px")
+        .set("height", "441px")
+        .set("preserveAspectRatio", "xMidYMid meet");
 
     for (row_idx, row) in cs.iter().enumerate() {
         for (col_idx, &c) in row.iter().enumerate() {
@@ -249,7 +249,7 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
                 .set("width", cell_size)
                 .set("height", cell_size)
                 .set("fill", get_color(c))
-                .set("stroke", "#000")  // 枠線を黒に
+                .set("stroke", "#000")
                 .set("stroke-width", 1);
 
             document = document.add(rect);
@@ -263,7 +263,7 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
                     .set("cx", x_pos + cell_size / 2)
                     .set("cy", y_pos + cell_size / 2)
                     .set("r", circle_radius)
-                    .set("fill", circle_color); // 各文字の対応する色
+                    .set("fill", circle_color);
                 document = document.add(circle);
             }
         }
@@ -274,13 +274,45 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
         .set("cx", x as i32 * cell_size + cell_size / 2)
         .set("cy", y as i32 * cell_size + cell_size / 2)
         .set("r", 6)
-        .set("fill", "yellow") // 主人公を黄色の円で表す
+        .set("fill", "yellow")
         .set("stroke", "black")
         .set("stroke-width", 2);
 
     document = document.add(player_circle);
 
-    document.to_string() // SVG を文字列として返す
+    // 最下段に列番号 (0〜19) を追加
+    for col_idx in 0..cs[0].len() {
+        let x_pos = col_idx as i32 * cell_size + cell_size / 2;
+        let y_pos = cs.len() as i32 * cell_size + 15; // 下の余白
+
+        let text = Text::new("")
+            .set("x", x_pos)
+            .set("y", y_pos)
+            .set("text-anchor", "middle") // 中央揃え
+            .set("font-size", 12)
+            .set("fill", "black")
+            .add(svg::node::Text::new(format!("{}", col_idx)));
+
+        document = document.add(text);
+    }
+
+    // 最右列に行番号 (0〜19) を追加
+    for row_idx in 0..cs.len() {
+        let x_pos = cs[0].len() as i32 * cell_size + 5; // 右の余白
+        let y_pos = row_idx as i32 * cell_size + cell_size / 2 + 4;
+
+        let text = Text::new("")
+            .set("x", x_pos)
+            .set("y", y_pos)
+            .set("text-anchor", "left") // 左揃え
+            .set("font-size", 12)
+            .set("fill", "black")
+            .add(svg::node::Text::new(format!("{}", row_idx)));
+
+        document = document.add(text);
+    }
+
+    document.to_string()
 }
 
 #[wasm_bindgen]
