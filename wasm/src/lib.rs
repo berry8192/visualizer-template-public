@@ -208,11 +208,11 @@ fn get_color(c: char) -> &'static str {
         '@' => "#000000", // 黒
         '.' => "#FFFFFF", // 白
         'A' => "#FF0000",
-        'a' => "#FF8888",
+        'a' => "#FFAAAA",
         'B' => "#00FF00",
-        'b' => "#88FF88",
+        'b' => "#AAFFAA",
         'C' => "#0000FF",
-        'c' => "#8888FF",
+        'c' => "#AAAAFF",
         _ => "#888888",   // デフォルト灰色
     }
 }
@@ -273,7 +273,7 @@ fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
     let player_circle = Circle::new()
         .set("cx", x as i32 * cell_size + cell_size / 2)
         .set("cy", y as i32 * cell_size + cell_size / 2)
-        .set("r", 8)
+        .set("r", 6)
         .set("fill", "yellow") // 主人公を黄色の円で表す
         .set("stroke", "black")
         .set("stroke-width", 2);
