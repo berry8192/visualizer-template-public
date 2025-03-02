@@ -208,11 +208,11 @@ fn get_color(c: char) -> &'static str {
         '@' => "#000000", // 黒
         '.' => "#FFFFFF", // 白
         'A' => "#FF0000",
-        'a' => "#FFAAAA",
+        'a' => "#FFFFFF",
         'B' => "#00FF00",
-        'b' => "#AAFFAA",
+        'b' => "#FFFFFF",
         'C' => "#0000FF",
-        'c' => "#AAAAFF",
+        'c' => "#FFFFFF",
         _ => "#888888",   // デフォルト灰色
     }
 }
