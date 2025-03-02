@@ -217,6 +217,16 @@ fn get_color(c: char) -> &'static str {
     }
 }
 
+/// 小文字のキャラに対応する丸の色を取得
+fn get_circle_color(c: char) -> &'static str {
+    match c {
+        'a' => "#FF8888", // 薄い赤
+        'b' => "#88FF88", // 薄い緑
+        'c' => "#8888FF", // 薄い青
+        _ => "#000000",   // 通常は黒
+    }
+}
+
 /// 20×20 の盤面を表す SVG を生成
 fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
     let cell_size = 20; // 各マスのサイズ
@@ -292,19 +302,15 @@ pub fn vis(input: String, output: String, turn: usize) -> Ret {
             let actions = &out.out[..turn];
             let (score, err) = tools::compute_score(&input, &out);
             let (cs, (x, y)) = tools::get_grid(&input, &actions);
-            (score, err, create_svg(cs, x, y))
+            (score, err, generate_svg(cs, y, x))
         }
         Err(err) => {
             let (cs, (x, y)) = tools::get_grid(&input, &[]);
-            (0, err, create_svg(cs, x, y))
+            (0, err, generate_svg(cs, y, x))
         }
     };
 
     Ret { score, err, svg }
-}
-
-fn create_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
-    unimplemented!()
 }
 
 #[wasm_bindgen]
