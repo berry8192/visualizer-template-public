@@ -121,14 +121,14 @@ export function vis(input, output, turn) {
 }
 
 /**
-* @param {string} _input
-* @param {string} _output
+* @param {string} input
+* @param {string} output
 * @returns {number}
 */
-export function get_max_turn(_input, _output) {
-    const ptr0 = passStringToWasm0(_input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+export function get_max_turn(input, output) {
+    const ptr0 = passStringToWasm0(input, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len0 = WASM_VECTOR_LEN;
-    const ptr1 = passStringToWasm0(_output, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
+    const ptr1 = passStringToWasm0(output, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
     const len1 = WASM_VECTOR_LEN;
     const ret = wasm.get_max_turn(ptr0, len0, ptr1, len1);
     return ret >>> 0;

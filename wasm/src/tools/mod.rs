@@ -36,11 +36,66 @@ macro_rules! mat {
 	($e:expr; $d:expr $(; $ds:expr)+) => { Vec::from(vec![mat![$e $(; $ds)*]; $d]) };
 }
 
+pub fn get_grid(input: &Input, out: &[Action]) -> (Vec<Vec<char>>, (usize, usize)) {
+    let mut cs = input.cs.clone();
+    let mut pos = (0, 0);
+    for i in 0..input.N {
+        for j in 0..input.N {
+            if cs[i][j] == 'A' {
+                pos = (i, j);
+            }
+        }
+    }
+    for t in 0..out.len() {
+        match out[t] {
+            Action::Move(d) => {
+                let (di, dj) = DIJ[d];
+                pos.0 += di;
+                pos.1 += dj;
+            }
+            Action::Carry(d) => {
+                let (di, dj) = DIJ[d];
+                let c = cs[pos.0][pos.1];
+                cs[pos.0][pos.1] = '.';
+                pos.0 += di;
+                pos.1 += dj;
+                if matches!(cs[pos.0][pos.1], 'A'..='Z') {
+                } else {
+                    assert_eq!(cs[pos.0][pos.1], '.');
+                    cs[pos.0][pos.1] = c;
+                }
+            }
+            Action::Roll(d) => {
+                let (di, dj) = DIJ[d];
+                let c = cs[pos.0][pos.1];
+                cs[pos.0][pos.1] = '.';
+                let mut crt = pos;
+                loop {
+                    let next = (crt.0 + di, crt.1 + dj);
+                    if next.0 >= input.N
+                        || next.1 >= input.N
+                        || matches!(cs[next.0][next.1], '@' | 'a'..='z')
+                    {
+                        cs[crt.0][crt.1] = c;
+                        break;
+                    } else if matches!(cs[next.0][next.1], 'A'..='Z') {
+                        break;
+                    } else {
+                        crt = next;
+                    }
+                }
+            }
+        }
+    }
+
+    (cs, pos)
+}
+
 #[derive(Clone, Debug)]
 pub struct Input {
     N: usize,
     M: usize,
-    cs: Vec<Vec<char>>,
+    pub cs: Vec<Vec<char>>,
 }
 
 impl std::fmt::Display for Input {

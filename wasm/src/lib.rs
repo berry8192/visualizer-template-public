@@ -1,6 +1,8 @@
 use wasm_bindgen::prelude::*;
 mod tools;
 
+use svg::node::element::{Rectangle, Circle, Text, SVG};
+use svg::Document;
 use noise::{NoiseFn, Perlin};
 use proconio::{input, marker::Chars};
 use rand::prelude::*;
@@ -201,6 +203,73 @@ pub fn compute_score_details(input: &Input, out: &[Action]) -> (i64, String, ())
     (score, String::new(), ())
 }
 
+fn get_color(c: char) -> &'static str {
+    match c {
+        '@' => "#000000", // 黒
+        '.' => "#FFFFFF", // 白
+        'A' => "#FF0000",
+        'a' => "#FF8888",
+        'B' => "#00FF00",
+        'b' => "#88FF88",
+        'C' => "#0000FF",
+        'c' => "#8888FF",
+        _ => "#888888",   // デフォルト灰色
+    }
+}
+
+/// 20×20 の盤面を表す SVG を生成
+fn generate_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
+    let cell_size = 20; // 各マスのサイズ
+    let circle_radius = 8;
+    let mut document = Document::new()
+        .set("viewBox", (0, 0, 400, 400))
+        .set("width", "400px")  // 最大幅
+        .set("height", "400px") // 最大高さ
+        .set("preserveAspectRatio", "xMidYMid meet"); // 縮小時に中央寄せ
+
+    for (row_idx, row) in cs.iter().enumerate() {
+        for (col_idx, &c) in row.iter().enumerate() {
+            let x_pos = col_idx as i32 * cell_size;
+            let y_pos = row_idx as i32 * cell_size;
+
+            // マスの背景を描画
+            let rect = Rectangle::new()
+                .set("x", x_pos)
+                .set("y", y_pos)
+                .set("width", cell_size)
+                .set("height", cell_size)
+                .set("fill", get_color(c))
+                .set("stroke", "#000")  // 枠線を黒に
+                .set("stroke-width", 1);
+
+            document = document.add(rect);
+
+            // 小文字 (a, b, c) の場合、中央に小さい円を描画
+            if ['a', 'b', 'c'].contains(&c) {
+                let circle = Circle::new()
+                    .set("cx", x_pos + cell_size / 2)
+                    .set("cy", y_pos + cell_size / 2)
+                    .set("r", circle_radius)
+                    .set("fill", "#000"); // 小さい丸は黒
+                document = document.add(circle);
+            }
+        }
+    }
+
+    // 主人公の位置にキャラを描画 (例: 赤い円)
+    let player_circle = Circle::new()
+        .set("cx", x as i32 * cell_size + cell_size / 2)
+        .set("cy", y as i32 * cell_size + cell_size / 2)
+        .set("r", 8)
+        .set("fill", "yellow") // 主人公を黄色の円で表す
+        .set("stroke", "black")
+        .set("stroke-width", 2);
+
+    document = document.add(player_circle);
+
+    document.to_string() // SVG を文字列として返す
+}
+
 #[wasm_bindgen]
 pub fn gen(seed: i32, problemId: String) -> String {
     let input = tools::generate(seed as u64, &problemId);
@@ -216,15 +285,34 @@ pub struct Ret {
 
 #[wasm_bindgen]
 pub fn vis(input: String, output: String, turn: usize) -> Ret {
-    let (score, err) = tools::score::score(input, output);
-    Ret {
-        score,
-        err,
-        svg: "".to_string(),
-    }
+    let input = tools::parse_input(&input);
+    let output = tools::parse_output(&input, &output);
+    let (score, err, svg) = match output {
+        Ok(out) => {
+            let actions = &out.out[..turn];
+            let (score, err) = tools::compute_score(&input, &out);
+            let (cs, (x, y)) = tools::get_grid(&input, &actions);
+            (score, err, create_svg(cs, x, y))
+        }
+        Err(err) => {
+            let (cs, (x, y)) = tools::get_grid(&input, &[]);
+            (0, err, create_svg(cs, x, y))
+        }
+    };
+
+    Ret { score, err, svg }
+}
+
+fn create_svg(cs: Vec<Vec<char>>, x: usize, y: usize) -> String {
+    unimplemented!()
 }
 
 #[wasm_bindgen]
-pub fn get_max_turn(_input: String, _output: String) -> usize {
-    10000
+pub fn get_max_turn(input: String, output: String) -> usize {
+    let input = tools::parse_input(&input);
+    let output = tools::parse_output(&input, &output);
+    match output {
+        Ok(out) => out.out.len(),
+        Err(_) => 0,
+    }
 }
