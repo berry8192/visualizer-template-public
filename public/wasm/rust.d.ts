@@ -2,10 +2,9 @@
 /* eslint-disable */
 /**
 * @param {number} seed
-* @param {string} problemId
 * @returns {string}
 */
-export function gen(seed: number, problemId: string): string;
+export function gen(seed: number): string;
 /**
 * @param {string} _input
 * @param {string} _output
@@ -33,49 +32,12 @@ export class Ret {
 */
   svg: string;
 }
-/**
-*/
-export class SolInfo {
-  free(): void;
-/**
-*/
-  error?: string;
-/**
-*/
-  max_turn: number;
-/**
-*/
-  score: bigint;
-/**
-*/
-  svg: string;
-}
-/**
-*/
-export class VisResult {
-  free(): void;
-/**
-*/
-  action: string;
-/**
-*/
-  comments: (string)[];
-/**
-*/
-  income: bigint;
-/**
-*/
-  money: bigint;
-/**
-*/
-  svg: string;
-}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly gen: (a: number, b: number, c: number, d: number) => void;
+  readonly gen: (a: number, b: number) => void;
   readonly __wbg_ret_free: (a: number) => void;
   readonly __wbg_get_ret_score: (a: number) => number;
   readonly __wbg_set_ret_score: (a: number, b: number) => void;
@@ -83,32 +45,12 @@ export interface InitOutput {
   readonly __wbg_set_ret_err: (a: number, b: number, c: number) => void;
   readonly __wbg_get_ret_svg: (a: number, b: number) => void;
   readonly __wbg_set_ret_svg: (a: number, b: number, c: number) => void;
-  readonly __wbg_solinfo_free: (a: number) => void;
-  readonly __wbg_get_solinfo_error: (a: number, b: number) => void;
-  readonly __wbg_set_solinfo_error: (a: number, b: number, c: number) => void;
-  readonly __wbg_get_solinfo_max_turn: (a: number) => number;
-  readonly __wbg_set_solinfo_max_turn: (a: number, b: number) => void;
-  readonly __wbg_visresult_free: (a: number) => void;
-  readonly __wbg_get_visresult_svg: (a: number, b: number) => void;
-  readonly __wbg_set_visresult_svg: (a: number, b: number, c: number) => void;
-  readonly __wbg_get_visresult_income: (a: number) => number;
-  readonly __wbg_set_visresult_income: (a: number, b: number) => void;
-  readonly __wbg_get_visresult_action: (a: number, b: number) => void;
-  readonly __wbg_set_visresult_action: (a: number, b: number, c: number) => void;
-  readonly __wbg_get_visresult_comments: (a: number, b: number) => void;
-  readonly __wbg_set_visresult_comments: (a: number, b: number, c: number) => void;
   readonly vis: (a: number, b: number, c: number, d: number, e: number) => number;
   readonly get_max_turn: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbg_get_solinfo_score: (a: number) => number;
-  readonly __wbg_get_visresult_money: (a: number) => number;
-  readonly __wbg_set_solinfo_svg: (a: number, b: number, c: number) => void;
-  readonly __wbg_get_solinfo_svg: (a: number, b: number) => void;
-  readonly __wbg_set_solinfo_score: (a: number, b: number) => void;
-  readonly __wbg_set_visresult_money: (a: number, b: number) => void;
-  readonly __wbindgen_malloc: (a: number, b: number) => number;
-  readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
+  readonly __wbindgen_malloc: (a: number, b: number) => number;
+  readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
